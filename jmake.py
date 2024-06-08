@@ -23,7 +23,7 @@ def jmake(json_file='jmake.json'):
 
             # Check if compiler path is specified
             if 'compiler_path' in data:
-              compiler_path = data['compiler_path']
+                compiler_path = data['compiler_path']
 
             # Dictionary to track dependencies
             dependencies = {}
@@ -33,6 +33,11 @@ def jmake(json_file='jmake.json'):
                 for file in os.listdir(include_dir):
                     if file.endswith('.cpp'):
                         file_path = os.path.join(include_dir, file)
+                        
+                        # Skip the main file
+                        if os.path.abspath(file_path) == os.path.abspath(main_file):
+                            continue
+
                         file_without_extension = os.path.splitext(file)[0]
                         output_file_path = os.path.join(objects_dir, file_without_extension + '.o')
 
@@ -49,7 +54,7 @@ def jmake(json_file='jmake.json'):
                         subprocess.run([compiler_path, '-c', file_path, '-o', output_file_path] + include_dirs)
                         linkable_files.append(output_file_path)
 
-            # Compile main file
+            # Compile main file separately during linking stage
             main_output_file_path = os.path.join(objects_dir, os.path.splitext(os.path.basename(main_file))[0] + '.o')
             subprocess.run([compiler_path, '-c', main_file, '-o', main_output_file_path] + include_dirs)
             linkable_files.append(main_output_file_path)
